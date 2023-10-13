@@ -1,0 +1,42 @@
+step 1: create a mysqlRDS with username and password
+step 2: launch a linux sever
+step 3: create IAM user (dont attach policy)
+step 4: create IAM policy 
+yum install mysql jq -y
+create secrets manager
+
+login linux server configure aws cli
+ aws configure
+
+secret=$(aws secretsmanager get-secret-value --secret-id mysecretsmysql | jq .SecretString | jq fromjson)
+ echo $secret
+user=$(echo $secret | jq -r .username)
+password=$(echo $secret | jq -r .password)
+endpoint=$(echo $secret | jq -r .host)
+port=$(echo $secret | jq -r .port)
+
+
+mysql -h $endpoint -u $user -P $port -p$password
+secret manager policy
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "kms:DescribeKey",
+                "kms:ListAliases",
+                "kms:ListKeys",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBInstances",
+                "tag:GetResources"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}

@@ -1,0 +1,125 @@
+What is Migration?
+	Migration includes process under different scenarios, 
+ex: 
+Scenario 1:
+Solaris -> App
+RHEL -> App {This is a type of migration, where we are migrating the Application from 1 OS to another}
+
+Scenario 2:
+MySQL -> Oracle {This is another type of migration, where we are going to change the modification/structure of the DB and migrating it to another}
+
+Scenario 3:
+JAVA -> Python {This is considered to be one of the hardest level migration because we are going to change the complete infrastructure of the code from one env to another}
+
+What is not Migration?
+	If we are trying to update the same version for the software
+
+ex:
+Scenario 1:
+Java 7 -> Java 9 {This is not migration, it is considered to be an Updation}
+
+=======================================================================================================
+
+Different Types of Migrations:
+
+1. VM Migration = Complete OS Level migration
+2. Storage Migration = Snowball {services - migrations - aws snow family} - this helps to transfer data on large scale (paid service)
+3. App Migration = Task
+4. DB Migration
+5. On-Premises Migration
+
+=======================================================================================================
+
+Different Strategies of Migrations: 6R's
+
+4 Successful Strategy
+
+- Re-host = Lift & Shift   {without doing any changes, just migrating from one to another}
+- Re-platform = Lift, Tinker & Shift   {While migrating, I am going to change something inside it according to the recent need; ex: Migrating everything but changing only the DB according to the need.}
+- Re-purchase = Drop & Shop {I am completely going to use a new env; ex: Migrating from Azure to AWS}
+- Re-architect = Redesign   {Output will be same, but changing the entire Architecture; ex: Migrating from Java to Python}
+
+- Retain = Do nothing for now or Revisit   {This is like a pre-plan (POC=proof of concept); and planning it accordingly}
+- Retire = Decommission or Get ride of it.   {Same like Retain, but it will not proceed further after POC}
+
+=======================================================================================================
+
+Cloud Migration:
+
+The Process of transferring data, applications, workloads from On-premesis to Cloud Premises.
+
+
+Why Cloud Migration?
+
+- Operational Costs
+- Workforce Productivity
+- Cost Avoidance
+- Operational Resilience
+- Business Agility
+
+========================================================================================================
+
+We are going to Migrate VM Migrate using Re-host Strategy.
+
+========================================================================================================
+
+Steps:
+1. Converting Os into .ova format - Go to Vmware - select the OS - Export to ova - save and change the file format name {ex: "windows7.ova"} [we are providing this ova file]
+2. We are going to push this .ova file to our S3 bucket - create bucket - provide public access - upload windows7.ova file - provide public access for the object - upload.
+3. Now, we need to bring the AWS CLI software into our system - search google (aws cli install on windows) - we are going to install using MSI installer (Install or update the AWS CLI version 2 on Windows using the MSI installer) - download and install the latest version - now open "cmd" and check the aws --version; for confirming purpose.
+4. Now we are going to configure an user - Create an user using IAM (mig_user) - provide programatic access - under permission provide Administration purpose (but for this S3 full access, IAM full access and EC2 full access) is enough.
+5. Now aws configure - provide the user access key, secret acces key, region name and output format.
+6. To confirm the CLI is working or not, try to ls S3 (aws s3 ls) - that should give you the output
+7. Now we are going to bring VMIE, but VMIE is not an internal service in AWS, hence we are going to copy the commands from another document
+
+***
+aws iam create-role --role-name vmimport --assume-role-policy-document "file://C:/Users/queen/Documents/Learning Materials/AWS/Besant Technologies Docs/Migration Doc/trust-policy.json"
+[I am creating a role named as (vmimport) - under this trust-policy.json we can see the role details (this will be given by AWS itself)
+
+aws iam put-role-policy --role-name vmimport --policy-name vmimport --policy-document "file://C:/Users/queen/Documents/Learning Materials/AWS/Besant Technologies Docs/Migration Doc/role-policy.json"
+[We are attaching the policy for the role which we created - Under this role-policy.json all the details will be given by depth]
+
+aws ec2 import-image --description "Windows 7 ova" --disk-containers "file://C:/Users/queen/Documents/Learning Materials/AWS/Besant Technologies Docs/Migration Doc/containers.json"
+
+aws ec2 describe-import-image-tasks --import-task-ids import-ami-03e72423d82ee08c9
+***
+[Don't forget to change the path in to your local path]
+
+8. The 1st command helps us to create a new role - once after running the command confirm the same on IAM roles (vmimport)
+9. By default, when we are creating a role it will come with permissions; but here in this scenario we have a role without any policy; hence run the 2nd command for providing the policy - confirm the same by going inside the Permissions and Access Advisor (where you can see 2 services has been given access) - (*** Don't forget to change you bucket name inside the role-policy.json***)
+10. By using the 3rd command, we will be able to bring the image from S3 - (*** Don't forget to change you bucket name inside the container.json file & your .ova file name properly***) then run the command.
+11. The 4th command will be used to check the status of the AMI progress (*** Don't forget to change the ami id, get it from previous command output***)
+12. Once after the AMI was completed, confirm it with the image. 
+13. Try to run the 4th command once again on "cmd" - in license type it will show as "BYOL" means Bring Your Own License [as AWS doesn't have windows7 it is asking us to use our own license]
+14. Now, try to launch EC2 using our AMI, and confirm the same.
+15. Open via RDC [make sure here this OS already contains an username and password; hence we are not going to use our AWS credentials instead we are going to use our OS credentials {username: karthik; password: 12345678}
+
+======================================================================================================
+
+Tasks:
+VM Migration - Practical Task
+For Application Migration, we have a seperate document, go through the entire steps and create your own document [This Document was officially prepared by APN (Amazon Partner Network)]
+Go on with the excel sheet document for knowing the time period with it's detailed view.
+Document about Snowball Process.
+
+Once all the tasks are completed, we will provide you with Database Migration and On-Premises Migration Docs.
+
+Deletion Steps:
+1. EC2
+2. Volume
+3. AMI
+4. Snapshot
+5. IAM Roles and User
+
+
+
+
+
+
+
+
+
+
+
+
+
